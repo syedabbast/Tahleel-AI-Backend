@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
+// const rateLimit = require('express-rate-limit'); // Temporarily disabled
 require('dotenv').config();
 
 const analysisRoutes = require('./routes/analysis');
@@ -12,18 +12,17 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy for Render/Heroku/Railway
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
-});
-app.use('/api/', limiter);
+// TEMPORARILY DISABLE RATE LIMITING
+// const limiter = rateLimit({...});
+// app.use('/api/', limiter);
 
-// CORS configuration - UPDATED for production
+// CORS configuration
 const corsOptions = {
   origin: [
     'http://localhost:3000',
@@ -63,7 +62,7 @@ app.use('/api/news', newsRoutes);
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
-    message: 'TAHLEEL.ai Backend API',
+    message: 'TAHLEEL.ai Backend API - WORKING!',
     version: '1.0.0',
     company: 'Auwire Technologies',
     status: 'Running',
@@ -71,9 +70,6 @@ app.get('/', (req, res) => {
       health: '/health',
       analysis: '/api/analysis',
       news: '/api/news'
-    },
-    cors: {
-      allowedOrigins: corsOptions.origin
     }
   });
 });
@@ -86,8 +82,7 @@ app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Route not found',
     method: req.method,
-    url: req.originalUrl,
-    availableRoutes: ['/health', '/api/analysis', '/api/news']
+    url: req.originalUrl
   });
 });
 
@@ -95,8 +90,7 @@ app.use('*', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 TAHLEEL.ai Backend running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`📊 Health check: https://tahleel-ai-backend.onrender.com/health`);
-  console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL}`);
+  console.log(`📊 Health check available`);
 });
 
 module.exports = app;
