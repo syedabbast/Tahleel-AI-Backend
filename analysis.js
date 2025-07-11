@@ -47,3 +47,28 @@ router.post('/', async (req, res) => {
 });
 
 // GET /api/analysis/history - Get analysis history (future feature)
+router.get('/history', async (req, res) => {
+  try {
+    // Future implementation for storing and retrieving analysis history
+    res.json({
+      message: 'Analysis history feature coming soon',
+      analyses: []
+    });
+  } catch (error) {
+    console.error('History retrieval error:', error);
+    res.status(500).json({
+      error: 'Failed to retrieve analysis history'
+    });
+  }
+});
+
+// GET /api/analysis/test - Test endpoint
+router.get('/test', (req, res) => {
+  res.json({
+    message: 'Analysis service is running',
+    timestamp: new Date().toISOString(),
+    service: 'TAHLEEL.ai Analysis API'
+  });
+});
+
+module.exports = router;
