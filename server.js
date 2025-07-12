@@ -2,11 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-// const rateLimit = require('express-rate-limit'); // Temporarily disabled
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const analysisRoutes = require('./routes/analysis');
 const newsRoutes = require('./routes/news');
+const testRoutes = require('./routes/test'); // ADD THIS LINE
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -18,9 +19,16 @@ app.set('trust proxy', 1);
 // Security middleware
 app.use(helmet());
 
-// TEMPORARILY DISABLE RATE LIMITING
-// const limiter = rateLimit({...});
-// app.use('/api/', limiter);
+// Rate limiting - Updated for proxy environments
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  trustProxy: true
+});
+app.use('/api/', limiter);
 
 // CORS configuration
 const corsOptions = {
@@ -51,13 +59,15 @@ app.get('/health', (req, res) => {
     uptime: process.uptime(),
     service: 'TAHLEEL.ai Backend',
     environment: process.env.NODE_ENV || 'development',
-    frontendUrl: process.env.FRONTEND_URL
+    frontendUrl: process.env.FRONTEND_URL,
+    trustProxy: app.get('trust proxy')
   });
 });
 
 // API routes
 app.use('/api/analysis', analysisRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/test', testRoutes); // ADD THIS LINE
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -69,7 +79,11 @@ app.get('/', (req, res) => {
     endpoints: {
       health: '/health',
       analysis: '/api/analysis',
-      news: '/api/news'
+      news: '/api/news',
+      test: '/api/test' // ADD THIS LINE
+    },
+    cors: {
+      allowedOrigins: corsOptions.origin
     }
   });
 });
@@ -82,7 +96,8 @@ app.use('*', (req, res) => {
   res.status(404).json({
     error: 'Route not found',
     method: req.method,
-    url: req.originalUrl
+    url: req.originalUrl,
+    availableRoutes: ['/health', '/api/analysis', '/api/news', '/api/test']
   });
 });
 
@@ -90,7 +105,9 @@ app.use('*', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 TAHLEEL.ai Backend running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`📊 Health check available`);
+  console.log(`📊 Health check: https://tahleel-ai-backend.onrender.com/health`);
+  console.log(`🔧 Trust proxy: ${app.get('trust proxy')}`);
+  console.log(`🧪 Test endpoints: https://tahleel-ai-backend.onrender.com/api/test`);
 });
 
 module.exports = app;
