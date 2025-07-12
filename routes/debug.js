@@ -31,7 +31,12 @@ router.get('/apikey', async (req, res) => {
     // Step 3: Claude client initialization test
     let clientTest = { status: 'failed', error: null };
     try {
-      const anthropic = new Anthropic({ apiKey: apiKey });
+      const anthropic = new Anthropic({ 
+        apiKey: apiKey,
+        defaultHeaders: {
+          'anthropic-version': '2023-06-01'
+        }
+      });
       clientTest.status = 'initialized';
       clientTest.client_created = true;
     } catch (error) {
@@ -43,11 +48,16 @@ router.get('/apikey', async (req, res) => {
     
     if (apiKey && apiKey.startsWith('sk-ant-api03-')) {
       try {
-        const anthropic = new Anthropic({ apiKey: apiKey });
+        const anthropic = new Anthropic({ 
+          apiKey: apiKey,
+          defaultHeaders: {
+            'anthropic-version': '2023-06-01'
+          }
+        });
         
-        console.log('🧪 Testing actual Claude API call...');
+        console.log('🧪 Testing actual Claude 3.5 Sonnet API call...');
         const message = await anthropic.messages.create({
-          model: "claude-3-sonnet-20240229",
+          model: "claude-3-5-sonnet-20241022", // UPDATED MODEL
           max_tokens: 50,
           messages: [{
             role: "user", 
@@ -58,7 +68,7 @@ router.get('/apikey', async (req, res) => {
         apiCallTest = {
           status: 'success',
           response: message.content[0].text,
-          model_used: 'claude-3-sonnet-20240229',
+          model_used: 'claude-3-5-sonnet-20241022',
           tokens_used: message.usage?.input_tokens || 'unknown'
         };
         
@@ -82,7 +92,12 @@ router.get('/apikey', async (req, res) => {
         api_call_test: apiCallTest
       },
       recommendations: generateRecommendations(keyAnalysis, apiCallTest),
-      next_steps: getNextSteps(keyAnalysis, apiCallTest)
+      next_steps: getNextSteps(keyAnalysis, apiCallTest),
+      model_info: {
+        current_model: 'claude-3-5-sonnet-20241022',
+        model_type: 'Claude 3.5 Sonnet',
+        updated: true
+      }
     });
     
   } catch (error) {
@@ -116,21 +131,27 @@ router.get('/simple', async (req, res) => {
   }
   
   try {
-    console.log('🔍 Testing Claude API with simple request...');
-    const anthropic = new Anthropic({ apiKey: apiKey });
+    console.log('🔍 Testing Claude 3.5 Sonnet API with simple request...');
+    const anthropic = new Anthropic({ 
+      apiKey: apiKey,
+      defaultHeaders: {
+        'anthropic-version': '2023-06-01'
+      }
+    });
     
     const message = await anthropic.messages.create({
-      model: "claude-3-sonnet-20240229",
+      model: "claude-3-5-sonnet-20241022", // UPDATED MODEL
       max_tokens: 30,
       messages: [{ role: "user", content: "Reply: WORKING" }]
     });
     
     return res.json({
       status: 'SUCCESS',
-      message: 'Claude API is working perfectly!',
+      message: 'Claude 3.5 Sonnet API is working perfectly!',
       response: message.content[0].text,
       api_key_valid: true,
-      ready_for_production: true
+      ready_for_production: true,
+      model: 'claude-3-5-sonnet-20241022'
     });
     
   } catch (error) {
@@ -139,6 +160,7 @@ router.get('/simple', async (req, res) => {
       error_type: error.constructor.name,
       error_message: error.message,
       error_status: error.status,
+      model_attempted: 'claude-3-5-sonnet-20241022',
       troubleshooting: {
         401: 'Invalid API key - get new one from console.anthropic.com',
         403: 'API access denied - check billing/account status',
@@ -174,14 +196,18 @@ function generateRecommendations(keyAnalysis, apiCallTest) {
     }
   }
   
+  if (apiCallTest.status === 'success') {
+    recommendations.push('Claude 3.5 Sonnet is working perfectly! Ready for production use.');
+  }
+  
   return recommendations;
 }
 
 function getNextSteps(keyAnalysis, apiCallTest) {
   if (apiCallTest.status === 'success') {
     return [
-      'Claude API is working perfectly!',
-      'Your TAHLEEL.ai platform should now have real AI analysis',
+      'Claude 3.5 Sonnet API is working perfectly!',
+      'Your TAHLEEL.ai platform now has the latest Claude model',
       'Test the full platform at your frontend URL'
     ];
   }
