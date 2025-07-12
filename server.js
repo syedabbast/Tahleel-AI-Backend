@@ -7,7 +7,8 @@ require('dotenv').config();
 
 const analysisRoutes = require('./routes/analysis');
 const newsRoutes = require('./routes/news');
-const testRoutes = require('./routes/test'); // ADD THIS LINE
+const testRoutes = require('./routes/test');
+const debugRoutes = require('./routes/debug'); // ADD THIS LINE
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -60,14 +61,16 @@ app.get('/health', (req, res) => {
     service: 'TAHLEEL.ai Backend',
     environment: process.env.NODE_ENV || 'development',
     frontendUrl: process.env.FRONTEND_URL,
-    trustProxy: app.get('trust proxy')
+    trustProxy: app.get('trust proxy'),
+    claudeConfigured: !!process.env.CLAUDE_API_KEY
   });
 });
 
 // API routes
 app.use('/api/analysis', analysisRoutes);
 app.use('/api/news', newsRoutes);
-app.use('/api/test', testRoutes); // ADD THIS LINE
+app.use('/api/test', testRoutes);
+app.use('/api/debug', debugRoutes); // ADD THIS LINE
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -80,10 +83,12 @@ app.get('/', (req, res) => {
       health: '/health',
       analysis: '/api/analysis',
       news: '/api/news',
-      test: '/api/test' // ADD THIS LINE
+      test: '/api/test',
+      debug: '/api/debug' // ADD THIS LINE
     },
-    cors: {
-      allowedOrigins: corsOptions.origin
+    debug_endpoints: {
+      api_key_test: '/api/debug/simple',
+      full_diagnostic: '/api/debug/apikey'
     }
   });
 });
@@ -97,7 +102,7 @@ app.use('*', (req, res) => {
     error: 'Route not found',
     method: req.method,
     url: req.originalUrl,
-    availableRoutes: ['/health', '/api/analysis', '/api/news', '/api/test']
+    availableRoutes: ['/health', '/api/analysis', '/api/news', '/api/test', '/api/debug']
   });
 });
 
@@ -107,7 +112,7 @@ app.listen(PORT, () => {
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`📊 Health check: https://tahleel-ai-backend.onrender.com/health`);
   console.log(`🔧 Trust proxy: ${app.get('trust proxy')}`);
-  console.log(`🧪 Test endpoints: https://tahleel-ai-backend.onrender.com/api/test`);
+  console.log(`🧪 Debug Claude API: https://tahleel-ai-backend.onrender.com/api/debug/simple`);
 });
 
 module.exports = app;
