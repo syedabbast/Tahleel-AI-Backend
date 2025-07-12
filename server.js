@@ -5,12 +5,10 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-
-const subscriptionRoutes = require('./routes/subscription');
 const analysisRoutes = require('./routes/analysis');
 const newsRoutes = require('./routes/news');
 const testRoutes = require('./routes/test');
-const debugRoutes = require('./routes/debug'); // ADD THIS LINE
+// const debugRoutes = require('./routes/debug'); // COMMENTED OUT
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -70,10 +68,9 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/analysis', analysisRoutes);
-app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/test', testRoutes);
-app.use('/api/debug', debugRoutes); // ADD THIS LINE
+// app.use('/api/debug', debugRoutes); // COMMENTED OUT
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -86,12 +83,8 @@ app.get('/', (req, res) => {
       health: '/health',
       analysis: '/api/analysis',
       news: '/api/news',
-      test: '/api/test',
-      debug: '/api/debug' // ADD THIS LINE
-    },
-    debug_endpoints: {
-      api_key_test: '/api/debug/simple',
-      full_diagnostic: '/api/debug/apikey'
+      test: '/api/test'
+      // debug: '/api/debug' // COMMENTED OUT
     }
   });
 });
@@ -105,7 +98,7 @@ app.use('*', (req, res) => {
     error: 'Route not found',
     method: req.method,
     url: req.originalUrl,
-    availableRoutes: ['/health', '/api/analysis', '/api/news', '/api/test', '/api/debug']
+    availableRoutes: ['/health', '/api/analysis', '/api/news', '/api/test']
   });
 });
 
@@ -115,7 +108,6 @@ app.listen(PORT, () => {
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`📊 Health check: https://tahleel-ai-backend.onrender.com/health`);
   console.log(`🔧 Trust proxy: ${app.get('trust proxy')}`);
-  console.log(`🧪 Debug Claude API: https://tahleel-ai-backend.onrender.com/api/debug/simple`);
 });
 
 module.exports = app;
