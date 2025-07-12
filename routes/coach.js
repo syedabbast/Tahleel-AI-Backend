@@ -1,5 +1,3 @@
-/ CREATE THIS NEW FILE IN YOUR BACKEND
-
 const express = require('express');
 const router = express.Router();
 
