@@ -3,6 +3,7 @@ const router = express.Router();
 const claudeService = require('../services/claudeService');
 const newsService = require('../services/newsService');
 const { trackAnalysis } = require('../middleware/subscriptionAnalytics');
+const translationService = require('../services/translationService');
 
 // POST /api/analysis - Analyze opponent team
 router.post('/', async (req, res) => {
