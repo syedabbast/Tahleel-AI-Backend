@@ -36,10 +36,4 @@
   "engines": {
     "node": ">=18.0.0"
   }
-  {
-  "dependencies": {
-    "moment": "^2.29.4",
-    "node-schedule": "^2.1.1"
-  }
-}
 }
