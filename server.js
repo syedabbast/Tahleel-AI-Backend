@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const analysisRoutes = require('./routes/analysis');
+const coachRoutes = require('./routes/coach');
 const newsRoutes = require('./routes/news');
 const testRoutes = require('./routes/test');
 // const debugRoutes = require('./routes/debug'); // COMMENTED OUT
@@ -70,6 +71,7 @@ app.get('/health', (req, res) => {
 app.use('/api/analysis', analysisRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/test', testRoutes);
+app.use('/api/coach', coachRoutes);
 // app.use('/api/debug', debugRoutes); // COMMENTED OUT
 
 // Root endpoint
