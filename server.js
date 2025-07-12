@@ -5,6 +5,8 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
+
+const subscriptionRoutes = require('./routes/subscription');
 const analysisRoutes = require('./routes/analysis');
 const newsRoutes = require('./routes/news');
 const testRoutes = require('./routes/test');
@@ -68,6 +70,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/analysis', analysisRoutes);
+app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/test', testRoutes);
 app.use('/api/debug', debugRoutes); // ADD THIS LINE
