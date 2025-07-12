@@ -38,7 +38,6 @@
   }
   {
   "dependencies": {
-    // Add any new dependencies if needed
     "moment": "^2.29.4",
     "node-schedule": "^2.1.1"
   }
